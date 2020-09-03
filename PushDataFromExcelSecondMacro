@@ -1,0 +1,49 @@
+Option Explicit
+
+
+Sub PushDataFromExcelToMSWord()
+
+   Dim exclApp As Excel.Application
+   'Dim wordApp As Word.Application
+   
+   Dim exclWorkbk As Excel.Workbook
+   'Dim wordDoc As Word.Document
+   
+   Dim mySheet As Excel.Worksheet
+   Dim wordDoc As Word.Document
+   Dim row As Integer
+   Dim i As Integer
+   
+   'Set wordApp = CreateObject("Word.Application")
+   'Set wordApp = GetObject(, "Word.Application")        'At its simplest, CreateObject creates an instance of an object,
+   Set exclApp = GetObject(, "Excel.Application")        'whereas GetObject gets an existing instance of an object.
+   
+   Debug.Print exclApp
+   'Set wordDoc = wordApp.Documents.Open(ThisWorkbook.Path & "/" & Range("E1").Value & ".docx")
+   
+   
+   'Set wordDoc = wordApp.ActiveDocument
+   Set wordDoc = Word.ActiveDocument
+   Debug.Print wordDoc
+   
+   
+   'Set mySheet = Application.ActiveWorkbook.ActiveSheet
+   Set mySheet = exclApp.ActiveWorkbook.ActiveSheet
+   Debug.Print mySheet.Name
+   
+   'wordApp.Visible = True
+   Word.Application.Visible = True
+   
+   row = 2
+   
+   For i = 1 To 15
+      wordDoc.ContentControls(i).Range.Text = exclApp.ActiveWorkbook.Sheets("destinat").Cells(row, 2)
+      'exclApp.ActiveWorkbook.Sheets("destinat").Cells(row, 2) = wordDoc.ContentControls(i).Range.Text
+      row = row + 1
+      Debug.Print row
+   Next i
+   
+   Word.Application.Documents.Close
+   Word.Application.Quit
+   
+End Sub
