@@ -1,0 +1,72 @@
+Option Explicit
+
+Sub Uzupelnij_dane_na_podstawie_zaznaczonego_numeru_PESEL()
+
+Dim strPESELfromWord As String
+Dim strPESELfromExcl As String
+Dim objExcel As Object
+
+Dim exclApp As Excel.Application
+Dim exclWorkbk As Excel.Workbook
+Dim mySheet As Excel.Worksheet
+
+Dim intWiersz As Integer
+Dim cntCntrl As ContentControl
+Dim blnFound As Boolean                                'zmienna ktora informuje, czy PESEL zostal znaleziony
+
+strPESELfromWord = Trim(Selection.Text)
+Debug.Print strPESELfromWord
+
+'Set exclApp = GetObject(, "Excel.Application")        'At its simplest, CreateObject creates an instance of an object,
+'Debug.Print exclApp
+
+Set objExcel = CreateObject("Excel.Application")       'Whereas GetObject gets an existing instance of an object.
+Debug.Print objExcel
+'Set objExcel = objExcel.Workbooks.Open("C:\Users\Lenovo\Desktop\WWW\2020-05-25 Michal\Tabela.xlsx")
+Set objExcel = objExcel.Workbooks.Open("X:\Roesler\Excel\FW 1\custdb.xlsm")         'X:\Roesler\Excel\FW 1
+Debug.Print objExcel.Name
+'Set exclWorkbk = objExcel.Workbooks.Open("X:\Roesler\Excel\FW 1\custdb.xlsm")
+Set exclWorkbk = Excel.Application.Workbooks.Open("X:\Roesler\Excel\FW 1\custdb.xlsm")
+Debug.Print exclWorkbk.Name
+
+intWiersz = 2
+blnFound = False                 'przed rozpoczeciem szukania zakladamy, ze PESEL-u nie znalezlismy
+
+strPESELfromExcl = objExcel.Sheets("data").Cells(intWiersz, 2)
+
+Do Until strPESELfromExcl = ""
+
+    strPESELfromExcl = objExcel.Sheets("data").Cells(intWiersz, 2)          'strPESELfromExcl = objExcel.Sheets("Tabela").Cells(intWiersz, 2)
+    'LCase function - Returns a String that has been converted to lowercase.
+    If LCase(strPESELfromExcl) = LCase(strPESELfromWord) Then
+    
+        'Jeżeli znalezlismy PESEL - ustawiamy zmienną
+        blnFound = True
+        
+        'wpisujemy wartosc znaleziona w pliku Excela w miejscu zaznaczonego tekstu
+        'Selection.TypeText Text:=objExcel.Sheets("Tabela").Cells(intWiersz, 3)
+        
+        'https://stackoverflow.com/questions/46009985/get-contentcontrol-by-title-or-tag
+        
+        For Each cntCntrl In ActiveDocument.ContentControls
+            If cntCntrl.Title = "02ClientFullName" Then cntCntrl.Range.Text = objExcel.Sheets("data").Cells(intWiersz, 4)
+            If cntCntrl.Title = "02ClientIDNumer" Then cntCntrl.Range.Text = objExcel.Sheets("data").Cells(intWiersz, 9)
+        Next
+        
+        'wyjscie z petli Do przed osiagnieciem warunku Until
+        Exit Do
+        
+    End If
+    
+    intWiersz = intWiersz + 1
+    
+Loop
+objExcel.Close
+Set objExcel = Nothing
+
+'jesli PESEL nie zostal znaleziony, pokaz komunikat
+If Not blnFound Then
+    MsgBox "PESEL " & strPESELfromWord & " nie został znaleziony.", vbExclamation
+End If
+
+End Sub
